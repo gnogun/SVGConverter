@@ -354,7 +354,8 @@ public class SvgDaoImpl implements SvgDao {
 
 	@Override
 	public String svgExport(SvgExportModel model) {
-				
+		// SVG -> EPS, GIF 변환 함수
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date dt = new Date();
 		File[] oldFiles = new File(context.getRealPath("/output/")).listFiles();
