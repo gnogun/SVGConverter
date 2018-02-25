@@ -1,0 +1,17 @@
+.content>div {
+	height: 500px;
+}
+
+.panel-body {
+	min-height: 400px;
+	max-height: 400px;
+	overflow-y: auto;
+}
+
+.modal p {
+	margin: 0;
+}
+
+.fileDownload {
+	display: none;
+}

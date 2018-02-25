@@ -1,0 +1,370 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Title</title>
+
+<script type="text/javascript" src="js/jquery-1.12.4/jquery-1.12.4.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui-1.12.1/jquery-ui.js"></script>
+
+<script type="text/javascript"
+	src="js/fancytree/jquery.fancytree-all.js"></script>
+
+<script type="text/javascript"
+	src="js/jQuery-contextMenu/jquery.contextMenu.js"></script>
+
+<script type="text/javascript"
+	src="js/fancytree/jquery.fancytree.contextMenu.js"></script>
+
+<script type="text/javascript" src="js/Popper/popper.js"></script>
+
+<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="js/mainFull.js"></script>
+
+<link rel="stylesheet" type="text/css"
+	href="js/jquery-ui-1.12.1/jquery-ui.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/fancytree/skin-win7/ui.fancytree.css" />
+<link rel="stylesheet" type="text/css"
+	href="js/jQuery-contextMenu/jquery.contextMenu.css" />
+<link rel="stylesheet" type="text/css"
+	href="bootstrap/css/bootstrap.css" />
+
+<link rel="stylesheet" type="text/css" href="css/custom.css" />
+
+</head>
+<body>
+
+	<div class="container">
+		<div class="row header">
+			<div class="col-12">
+				<p>temp header</p>
+			</div>
+		</div>
+
+		<div class="row content">
+			<div class="col-sm-6 left">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<b>SVG Document</b>
+					</div>
+					<div id="tree" class="panel-body"></div>
+				</div>
+			</div>
+			<div class="col-sm-6 right">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<b>Console log</b>
+					</div>
+					<div id="console" class="panel-body"></div>
+				</div>
+			</div>
+		</div>
+		<div class="row extraFunc">
+			<div class="col">
+				<button type="button" class="btn btn-primary"
+					id="createMultiCsvButton">SVG 텍스트 생성</button>
+				<button type="button" class="btn btn-primary"
+					id="createTranslatedSvgButton">번역 SVG 생성</button>
+				<button type="button" class="btn btn-primary" id="exportMultiSvg">EPS,
+					GIF 생성</button>
+				<button type="button" class="btn btn-primary"
+					id="createDirLinkInfoButton">핫스팟 링크 생성</button>
+
+			</div>
+			
+		</div>
+
+
+		<div class="row footer">
+
+			<div class="col-12">
+				<p>temp footer</p>
+			</div>
+		</div>
+	</div>
+
+	<div id="zipUploadModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">SVG ZIP 업로드</h4>
+				</div>
+				<div class="modal-body">
+					<form id="svgZipForm" method="POST" enctype="multipart/form-data">
+						<input type="hidden" name="currentPath" class="currentPath" /> <input
+							type="file" name="svgZipInput" id="svgZipInput" /> <input
+							type="checkbox" name="rootNameFlag" id="rootNameFlag" /> <span>ZIP
+							파일 이름으로 경로 생성</span>
+							<input type="hidden" />
+					</form>
+					<button type="button" class="btn btn-primary" id="zipUploadButton">업로드</button>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div id="newFolderModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">새 폴더</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="currentPath" class="currentPath" /> <input
+						type="text" id="newFolderInput" />
+					<button type="button" class="btn btn-primary" id="newFolderButton">생성</button>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="reNameModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">파일/폴더 이름 변경</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="currentPath" class="currentPath" /> <input
+						type="text" id="reNameInput" />
+					<button type="button" class="btn btn-primary" id="reNameButton">변경</button>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="createCsvModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">SVG 텍스트 생성</h4>
+				</div>
+				<div class="modal-body">
+
+					<div class="row content">
+						<div class="col-sm-6 left" style="overflow-y: auto;">
+							<div class="panel panel-default">
+								<div id="csvTree"></div>
+							</div>
+						</div>
+						<div class="col-sm-6 right" style="overflow-y: auto;">
+
+							<div id="treeSelect"></div>
+
+						</div>
+					</div>
+
+
+
+					<button type="button" class="btn btn-primary" id="createCsvButton">생성</button>
+					<a class="fileDownload btn btn-default" href="#"></a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="svgExportModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">SVG 이미지 변환</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="currentPath" class="currentPath" />
+					<div>
+						<input type="radio" name="gifFlag" id="gifFlag" /> <span>GIF</span>
+						<input type="radio" name="epsFlag" id="epsFlag" /> <span>EPS</span>
+					</div>
+					<div>
+
+						<input type="radio" name="gifFlag" id="sepGifFlag" /> <span>분리
+							GIF</span> 
+							<input type="radio" name="epsFlag" id="sepEpsFlag" /> <span>분리
+							EPS</span>
+					</div>
+					<button type="button" class="btn btn-primary" id="svgExportButton">변경</button>
+					<a class="fileDownload btn btn-default" href="#"></a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="svgExportMultiModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">SVG 이미지 변환</h4>
+				</div>
+				<div class="modal-body">
+
+					<div class="row content">
+						<div class="col-sm-6 left" style="overflow-y: auto;">
+							<div class="panel panel-default">
+								<div id="exportTree"></div>
+							</div>
+						</div>
+						<div class="col-sm-6 right" style="overflow-y: auto;">
+
+							<div id="exportTreeSelect"></div>
+
+						</div>
+					</div>
+					<div>
+						<input type="radio" name="gifFlag" id="gifFlag" /> <span>GIF</span>
+						<input type="radio" name="epsFlag" id="epsFlag" /> <span>EPS</span>
+					</div>
+					<div>
+
+						<input type="radio" name="gifFlag" id="sepGifFlag" /> <span>분리
+							GIF</span> <input type="radio" name="epsFlag" id="sepEpsFlag" /> <span>분리
+							EPS</span>
+					</div>
+					<button type="button" class="btn btn-primary"
+						id="svgExportMultiButton">생성</button>
+						<a class="fileDownload btn btn-default" href="#"></a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="createLinkInfoModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">핫스팟 링크 생성</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row content">
+						<!-- <div class="col-sm-6 left" style="overflow-y: auto;">
+							<div class="panel panel-default">
+								<div id="linkTree"></div>
+							</div>
+						</div> -->
+						<div class="col-sm-12" style="overflow-y: auto;">
+							<p>
+								<span>SD 폴더</span> <select class="linkPath" id="sdPath">
+								</select>
+							</p>
+							<p>
+								<span>CC 폴더</span> <select class="linkPath" id="ccPath"></select>
+							</p>
+							<p>
+								<span>CL 폴더</span> <select class="linkPath" id="clPath"></select>
+							</p>
+							<p>
+								<span>HL 폴더</span> <select class="linkPath" id="hlPath"></select>
+							</p>
+							<p>
+								<span>C_NAME 구분자</span>
+							</p>
+							<p>
+								<select id="linkSelector"></select>
+							</p>
+							<p>
+								<input type="text" id="editSelector" />
+								<button type="button" class="btn btn-default" id="addSelectorButton">추가</button>
+								<button type="button" class="btn btn-default" id="deleteSelectorButton">제거</button> 
+							</p>
+						</div>
+					</div>
+					<button type="button" class="btn btn-primary"
+						id="createLinkInfoButton">생성</button>
+					<a class="fileDownload btn btn-default" href="#"></a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="translateSvgModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">번역 SVG 생성</h4>
+				</div>
+				<div class="modal-body">
+					<form id="translateSvgForm" method="POST"
+						enctype="multipart/form-data">
+						<input type="file" name="translateFile" id="translateFile" />
+					</form>
+					<button type="button" class="btn btn-primary"
+						id="translateFileUploadButton">업로드</button>
+						<a class="fileDownload btn btn-default" href="#"></a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- 	<div class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div> -->
+
+	<!-- <div id="downloadModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">다운로드</h4>
+				</div>
+				<div class="modal-body">
+					<a id="fileDownload" href="#">Download</a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div> -->
+
+</body>
+</html>
