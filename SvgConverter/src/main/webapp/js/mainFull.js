@@ -1,25 +1,24 @@
 $(document).ready(function() {
+	// 메인 화면 fancytree 로드 함수
 	initTree();
+
+	// 버튼 이벤트 추가 함수
 	addButtonEvent();
 });
 
 function addButtonEvent() {
 	$("#zipUploadButton").click(function() {
-		// resetModal();
 		zipUpload();
 	});
 	$("#newFolderButton").click(function() {
-		// resetModal();
 		newFolder();
 	});
 
 	$("#reNameButton").click(function() {
-		// resetModal();
 		reName();
 	});
 
 	$("#svgExportButton, #svgExportMultiButton").click(function() {
-		// resetModal();
 		svgExport();
 	});
 
@@ -29,7 +28,6 @@ function addButtonEvent() {
 	});
 
 	$("#createMultiCsvButton").click(function() {
-		// resetModal();
 		$("#createCsvModal").modal();
 	});
 
@@ -45,7 +43,6 @@ function addButtonEvent() {
 	});
 
 	$("#createTranslatedSvgButton").click(function() {
-		// resetModal();
 		$("#translateSvgModal").modal();
 	});
 
@@ -62,27 +59,25 @@ function addButtonEvent() {
 	});
 
 	$("#createLinkInfoButton").click(function() {
-
 		createLinkInfo();
 	});
-	
+
 	$("#addSelectorButton").click(function() {
 		var editVal = $("#editSelector").val();
 		editVal.replace(/ /g, '');
 		addSelector(editVal);
 	});
-	
+
 	$("#deleteSelectorButton").click(function() {
 		var editVal = $("#editSelector").val();
 		editVal.replace(/ /g, '');
 		deleteSelector(editVal);
 	});
-	
-	
 
 }
 
 function initTree() {
+	// 
 	$("#tree").fancytree(
 			{
 				extensions : [ "contextMenu" ],
@@ -171,13 +166,6 @@ function initTree() {
 						}
 
 					},
-					/*
-					 * 
-					 * function(node){ if (node.folder){ return { 'create':{
-					 * 'name': 'folder option', 'icon': 'paste'} }; } else {
-					 * return { 'create':{ 'name': 'leaf option', 'icon':
-					 * 'paste'} }; }
-					 */
 					actions : function(node, action, options) {
 
 						if (action == "uploadZip") {
@@ -225,10 +213,6 @@ function initTree() {
 							$("#svgExportModal .currentPath").val(
 									node.getKeyPath());
 						}
-						/*
-						 * alert( "Selected action '" + action + "' on node " +
-						 * node + ".");
-						 */
 					}
 				},
 				lazyLoad : function(event, data) {
@@ -256,7 +240,6 @@ function initTree() {
 			var selKeys = $.map(data.tree.getSelectedNodes(), function(node) {
 				return node.getKeyPath();
 			});
-			// $("#treeSelect").html(selKeys.join("<br/> "));
 
 			// Get a list of all selected TOP nodes
 			var selRootNodes = data.tree.getSelectedNodes(true);
@@ -273,7 +256,6 @@ function initTree() {
 			}
 
 			$("#treeSelect").html(text);
-			// $("#echoSelectionRoots3").text(selRootNodes.join(", "));
 		}
 	});
 
@@ -294,7 +276,6 @@ function initTree() {
 			var selKeys = $.map(data.tree.getSelectedNodes(), function(node) {
 				return node.getKeyPath();
 			});
-			// $("#treeSelect").html(selKeys.join("<br/> "));
 
 			// Get a list of all selected TOP nodes
 			var selRootNodes = data.tree.getSelectedNodes(true);
@@ -311,10 +292,9 @@ function initTree() {
 			}
 
 			$("#exportTreeSelect").html(text);
-			// $("#echoSelectionRoots3").text(selRootNodes.join(", "));
 		}
 	});
-	
+
 }
 
 function zipUpload() {
@@ -334,8 +314,6 @@ function zipUpload() {
 			} else {
 
 				var form = new FormData(document.getElementById('svgZipForm'));
-
-				// $("#zipUploadButton").attr('disabled','disabled');
 
 				$("#zipUploadButton").button("loading");
 
@@ -389,7 +367,6 @@ function newFolder() {
 			contentType : false,
 			success : function(response, status, xhr) {
 				if (status == "success") {
-					// document.location.reload();
 					initTree();
 					resetModal();
 					addLog(currentPath + " 경로에 새 폴더 " + folderName + " 생성");
@@ -431,7 +408,6 @@ function reName() {
 			contentType : "application/json",
 			success : function(response, status, xhr) {
 				if (status == "success") {
-					// document.location.reload();
 					initTree();
 					resetModal();
 					addLog(currentPath + " 경로 이름 " + newName + " 로 변경");
@@ -459,7 +435,6 @@ function remove(keyPath) {
 		contentType : false,
 		success : function(response, status, xhr) {
 			if (status == "success") {
-				// document.location.reload();
 				initTree();
 				resetModal();
 				addLog(keyPath + " 삭제");
@@ -492,18 +467,12 @@ function createCsv(keyList) {
 				contentType : "application/json",
 				success : function(response, status, xhr) {
 					if (status == "success") {
-						// resetModal();
 						$("#createCsvModal").modal();
-						// $("#downloadModal").modal();
 						$("#createCsvModal .fileDownload").show();
 						$("#createCsvModal .fileDownload").attr("href",
 								"download/" + response + "/");
 						$("#createCsvModal .fileDownload").text(
 								"Download " + response);
-
-						// document.location.reload();
-					} else {
-						// alert(response);
 					}
 				},
 				error : function(request, status, error) {
@@ -564,9 +533,6 @@ function svgExport() {
 			success : function(response, status, xhr) {
 				if (status == "success") {
 					resetModal();
-					// $("#downloadModal").modal();
-					// $("#fileDownload").attr("href", "download/" + response);
-
 					$("#svgExportModal .fileDownload").show();
 					$("#svgExportModal .fileDownload").attr("href",
 							"download/" + response + "/");
@@ -579,9 +545,6 @@ function svgExport() {
 					$("#svgExportMultiModal .fileDownload").text(
 							"Download " + response);
 
-					// document.location.reload();
-				} else {
-					// alert(response);
 				}
 			},
 			error : function(request, status, error) {
@@ -621,8 +584,6 @@ function translateSvg() {
 			success : function(response, status, xhr) {
 				if (status == "success") {
 					resetModal();
-					// $("#downloadModal").modal();
-
 					$("#translateSvgModal .fileDownload").show();
 					$("#translateSvgModal .fileDownload").attr("href",
 							"download/" + response + "/");
@@ -694,10 +655,11 @@ function createLinkInfo() {
 	var pathSelect = $(".linkPath");
 
 	var result = [];
-	for ( var key in data) { // 배열의 원소수만큼 반복
+	for ( var key in data) {
 
-		if ($.inArray(data[key], result) == -1) { // result 에서 값을 찾는다. //값이
-			// 없을경우(-1)
+		if ($.inArray(data[key], result) == -1) {
+			// result 에서 값을 찾는다.
+			// 값이 없을경우(-1)
 			result.push(data[key]); // result 배열에 값을 넣는다.
 		}
 
@@ -720,21 +682,11 @@ function createLinkInfo() {
 			success : function(response, status, xhr) {
 				if (status == "success") {
 					$("#createLinkInfoButton").button("reset");
-					// resetModal();
-					// $("#downloadModal").modal();
-					/*
-					 * $("#fileDownload").attr("href", "download/" + response +
-					 * "/");
-					 */
 					$("#createLinkInfoModal .fileDownload").show();
 					$("#createLinkInfoModal .fileDownload").attr("href",
 							"download/" + response + "/");
 					$("#createLinkInfoModal .fileDownload").text(
 							"Download " + response);
-
-					// document.location.reload();
-				} else {
-					// alert(response);
 				}
 			},
 			error : function(request, status, error) {
@@ -765,8 +717,6 @@ function getExtension(file) {
 }
 
 function resetModal() {
-	// $('.modal').modal('hide');
-
 	$(".modal input[type='text']").val("");
 
 	$(".modal .linkPath").text("");
@@ -787,9 +737,7 @@ function loadLinkPath() {
 		contentType : "application/json",
 		success : function(response, status, xhr) {
 			if (status == "success") {
-				// document.location.reload();
 				createOptionElem(response);
-
 			}
 		},
 		error : function(request, status, error) {
@@ -810,9 +758,7 @@ function loadSelector() {
 		contentType : "application/json",
 		success : function(response, status, xhr) {
 			if (status == "success") {
-				// document.location.reload();
 				createSelectorOptionElem(response);
-
 			}
 		},
 		error : function(request, status, error) {
@@ -834,9 +780,7 @@ function addSelector(selector) {
 		contentType : false,
 		success : function(response, status, xhr) {
 			if (status == "success") {
-				// document.location.reload();
 				createSelectorOptionElem(response);
-
 			}
 		},
 		error : function(request, status, error) {
@@ -858,9 +802,7 @@ function deleteSelector(selector) {
 		contentType : false,
 		success : function(response, status, xhr) {
 			if (status == "success") {
-				// document.location.reload();
 				createSelectorOptionElem(response);
-
 			}
 		},
 		error : function(request, status, error) {
@@ -890,8 +832,6 @@ function createOptionElem(list) {
 
 			option.setAttribute('value', path);
 
-			// voiceSelect.appendChild(option);
-
 			$(this).append(option);
 
 		}
@@ -901,7 +841,7 @@ function createOptionElem(list) {
 function createSelectorOptionElem(selectorString) {
 	list = selectorString.split(" ");
 	var select = $("#linkSelector");
-	
+
 	select.empty();
 
 	for (var i = 0; i < list.length; i++) {
