@@ -50,6 +50,8 @@ public class XmlDaoImpl implements XmlDao {
 
 	@Override
 	public String svgLinkBuild(SvgLinkBuildModel model) {
+		// LinkInfo xml 파일 생성 함수
+		
 		String rootPath = context.getRealPath("/root/");
 
 		File outputPath = new File(context.getRealPath("/output/"));
@@ -58,11 +60,25 @@ public class XmlDaoImpl implements XmlDao {
 		File ccPath = new File(rootPath + model.getCcPath());
 		File clPath = new File(rootPath + model.getClPath());
 		File hlPath = new File(rootPath + model.getHlPath());
-
+		String selector = model.getSelector();
+		
+		if(selector.equals("")){
+			selector = "Helvetica-Bold";
+		}
+		
+		// LinkInfo 생성 시 기준이 되는 sd 파일 목록
 		File[] files = sdPath.listFiles();
 
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 
+		// LinkInfo.xml 구조에 맞게 클래스 준비
+		// <linklist>
+		//	<linkpool>
+		//		<linkinfo>
+		//		</linkinfo>
+		//	</linkpool>
+		// </linklist>
+		
 		LinkList linkList = new LinkList();
 		Date dt = new Date();
 		// "yyyy-MM-dd a hh:mm"
@@ -76,21 +92,26 @@ public class XmlDaoImpl implements XmlDao {
 		String linkInfoName = outputPath + "/linkinfo.xml";
 
 		try {
+			// xml docuemnt 생성시 dtd 유효성 검사 패스
 			builderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			DocumentBuilder builder = builderFactory.newDocumentBuilder();
 
 			for (File file : files) {
+				// svg 파일만 구분
 				if (FilenameUtils.getExtension(file.getName()).equals("svg")) {
 
 					Document document = builder.parse(new FileInputStream(file));
 
 					XPathFactory xPathfactory = XPathFactory.newInstance();
 					XPath xpath = xPathfactory.newXPath();
-					XPathExpression expr = xpath.compile("//tspan[@font-family=\"'Helvetica-Bold'\"]");
+					XPathExpression expr = xpath.compile("//tspan[@font-family=\"" + selector + "\"]");
 					NodeList list = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+					
 					for (int i = 0; i < list.getLength(); i++) {
 						Node node = list.item(i);
 						LinkInfo linkInfo = new LinkInfo();
+						
+						// java UUID로 생성 후 - 제거
 						UUID uuid = UUID.randomUUID();
 						String uuidString = uuid.toString();
 						uuidString = uuidString.replaceAll("-", "");
@@ -99,25 +120,22 @@ public class XmlDaoImpl implements XmlDao {
 						linkName = linkName.trim();
 
 						linkInfo.setC_NAME(linkName);
-						
 						linkInfo.setGuid(uuidString);
-
 						linkPool.getLinkInfo().add(linkInfo);
 					}
 
 				}
 			}
 			
-			
+			// 동일 C_NAME 엘리먼트 제거
 			linkPool.setLinkInfo(checkDuplicate(linkPool.getLinkInfo()));
 			
-			checkLink("cc", ccPath, linkPool);
-			checkLink("cl", clPath, linkPool);
-			checkLink("hl", hlPath, linkPool);
-			
+			// cc, cl, hl 경로 별로 C_NAME 유무 검사
+			checkLink("cc", ccPath, linkPool, selector);
+			checkLink("cl", clPath, linkPool, selector);
+			checkLink("hl", hlPath, linkPool, selector);
 			
 			linkPool.setLinkInfo(checkBlank(linkPool.getLinkInfo()));
-
 			linkList.setLinkPool(linkPool);
 
 			JacksonXmlModule module = new JacksonXmlModule();
@@ -141,7 +159,7 @@ public class XmlDaoImpl implements XmlDao {
 		return "/linkinfo.xml";
 	}
 
-	public void checkLink(String targetPath, File path, LinkPool linkPool) {
+	public void checkLink(String targetPath, File path, LinkPool linkPool, String selector) {
 
 		File[] files = path.listFiles();
 
@@ -165,7 +183,7 @@ public class XmlDaoImpl implements XmlDao {
 					Document document = builder.parse(new FileInputStream(file));
 					XPathFactory xPathfactory = XPathFactory.newInstance();
 					XPath xpath = xPathfactory.newXPath();
-					XPathExpression expr = xpath.compile("//tspan[@font-family=\"'Helvetica-Bold'\"]");
+					XPathExpression expr = xpath.compile("//tspan[@font-family=\"" + selector + "\"]");
 					NodeList list = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 
 					for (LinkInfo linkInfo : linkInfoList) {
@@ -223,6 +241,8 @@ public class XmlDaoImpl implements XmlDao {
 	}
 	
 	public List<LinkInfo> checkDuplicate(List<LinkInfo> linkInfoList) {
+		// 동일 C_NAME 엘리먼트 제거 함수
+		
 		HashMap<String, LinkInfo> linkInfoMap = new HashMap<String, LinkInfo>();
 		
 		for(LinkInfo linkInfo : linkInfoList) {
@@ -249,6 +269,7 @@ public class XmlDaoImpl implements XmlDao {
 	}
 	
 	public List<LinkInfo> checkBlank(List<LinkInfo> linkInfoList) {
+		// LinkInfo 엘리먼트의 참조 cc, cl, hl 이 없을때 해당 엘리먼트 제거 함수
 		
 		List<LinkInfo> returnList = new ArrayList<LinkInfo>();
 		
@@ -268,6 +289,8 @@ public class XmlDaoImpl implements XmlDao {
 	
 	@Override
 	public String getSelector() {
+		// LinkInfo 구분 selctor txt 파일 로드 함수
+		// txt 파일을 그대로 읽어 리턴
 
 		File selectorFile = new File(context.getRealPath("selector.txt"));
 
@@ -297,6 +320,8 @@ public class XmlDaoImpl implements XmlDao {
 
 	@Override
 	public String addSelector(String selector) {
+		// LinkInfo 구분 selector 추가 함수
+		// txt 파일 제일 끝 부분에 추가
 		
 		File selectorFile = new File(context.getRealPath("selector.txt"));
 
@@ -343,6 +368,8 @@ public class XmlDaoImpl implements XmlDao {
 
 	@Override
 	public String deleteSelector(String selector) {
+		// LinkInfo 구분 selector 제거 함수
+		
 		File selectorFile = new File(context.getRealPath("selector.txt"));
 
 		String returnVal = "";

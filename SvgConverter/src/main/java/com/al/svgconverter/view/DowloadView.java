@@ -15,7 +15,8 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.servlet.view.AbstractView;
 
 public class DowloadView extends AbstractView {
-	
+	// Spring mvc download abstractview 구현 클래스
+
 	@Autowired
 	private ServletContext context;
 
@@ -24,9 +25,8 @@ public class DowloadView extends AbstractView {
 	}
 
 	@Override
-	protected void renderMergedOutputModel(Map<String, Object> model,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 
 		String filePath = (String) context.getRealPath("/output/") + model.get("downloadFile");
 
@@ -34,10 +34,8 @@ public class DowloadView extends AbstractView {
 
 		String fileName = file.getName();
 
-		System.out.println("DownloadView --> file.getPath() : "
-				+ file.getPath());
-		System.out.println("DownloadView --> file.getName() : "
-				+ file.getName());
+		System.out.println("DownloadView --> file.getPath() : " + file.getPath());
+		System.out.println("DownloadView --> file.getName() : " + file.getName());
 
 		response.setContentType(getContentType());
 		response.setContentLength((int) file.length());
@@ -46,10 +44,12 @@ public class DowloadView extends AbstractView {
 
 		String encodedFilename = "";
 
+		// 다운로드 파일 이름 encoding 구분
 		if (header.indexOf("MSIE") > -1 || header.indexOf("Trident") > -1) {
-			encodedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll(
-					"\\+", "%20");
+			// Internet Explorer, Edge
+			encodedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
 		} else if (header.indexOf("Chrome") > -1) {
+			// Chrome
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < fileName.length(); i++) {
 				char c = fileName.charAt(i);
@@ -60,32 +60,18 @@ public class DowloadView extends AbstractView {
 				}
 			}
 			encodedFilename = sb.toString();
+
 		} else if (header.indexOf("Opera") > -1) {
+			// Opera
 			encodedFilename =
 
-			"\"" + new String(fileName.getBytes("UTF-8"), "8859_1") + "\"";
+					"\"" + new String(fileName.getBytes("UTF-8"), "8859_1") + "\"";
 		} else {
-			// firefox
-			encodedFilename = "\""
-					+ new String(fileName.getBytes("UTF-8"), "8859_1") + "\"";
+			// firefox 
+			encodedFilename = "\"" + new String(fileName.getBytes("UTF-8"), "8859_1") + "\"";
 		}
 
-		// boolean ie = userAgent.indexOf("MSIE") > -1;
-		//
-		// String fileName = null;
-		//
-		// if (ie) {
-		// fileName = URLEncoder.encode(documentName, "utf-8");
-		// } else {
-		// fileName = new String(documentName.getBytes("utf-8"), "UTF-8");
-		// }
-		//
-		// String encodingFileName = URLEncoder.encode(fileName,
-		// "utf-8").replace(
-		// "+", "%20"); // /
-
-		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ encodedFilename + "\";");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFilename + "\";");
 		response.setHeader("Content-Transfer-Encoding", "binary");
 
 		OutputStream out = response.getOutputStream();

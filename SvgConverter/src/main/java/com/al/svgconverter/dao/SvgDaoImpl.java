@@ -64,15 +64,14 @@ public class SvgDaoImpl implements SvgDao {
 	 */
 
 	private static final Logger logger = LoggerFactory.getLogger(SvgDaoImpl.class);
-	
+
 	@Autowired
 	private ServletContext context;
 
-		
 	@Override
 	public String uploadSvgZip(SvgZipModel zipModel) {
 		// 업로드한 SVG zip 파일을 처리하는 함수
-		
+
 		MultipartFile zipFile = zipModel.getSvgZipInput();
 
 		String encoding = Charset.defaultCharset().toString();
@@ -137,7 +136,7 @@ public class SvgDaoImpl implements SvgDao {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		// 성공, 실패 결과 값을 보낸다 추후 조정
 		return null;
 	}
@@ -168,7 +167,6 @@ public class SvgDaoImpl implements SvgDao {
 			// 앞에 붙은 / 제거
 			svgFileName = svgFileName.substring(1);
 
-			
 			File svgFile = new File(context.getRealPath("/root/") + svgFileName);
 
 			if (svgFile.isDirectory()) {
@@ -185,7 +183,7 @@ public class SvgDaoImpl implements SvgDao {
 				document = builder.parse(new FileInputStream(svgFile));
 
 				Element element = document.getDocumentElement();
-				
+
 				// SVG xml 구조 상에서 tspan 엘리먼트만 가져온다
 				NodeList list = element.getElementsByTagName("tspan");
 
@@ -197,7 +195,7 @@ public class SvgDaoImpl implements SvgDao {
 					if (textVal != null && textVal != "") {
 
 						// path | id | source | target
-						// SVG 파일 경로 | tsapn 엘리먼트 인덱스 |  tspan.textcontent | 공백
+						// SVG 파일 경로 | tsapn 엘리먼트 인덱스 | tspan.textcontent | 공백
 						sb.append(svgFileName).append(", ").append(i + 1).append(", ").append(textVal).append(", ")
 								.append(" ").append("\n");
 
@@ -209,7 +207,7 @@ public class SvgDaoImpl implements SvgDao {
 
 				String svgName = FilenameUtils.removeExtension(svgFile.getName());
 				String svgSkeletonName = svgFile.getParent() + "/" + svgName + ".skt";
-				
+
 				// 텍스트노드 값이 인덱스로 변경 된 Document 는 .skt 확장자 스켈레톤 파일로 저장한다
 				XmlUtil.xmlWrite(document, new File(svgSkeletonName));
 
@@ -223,13 +221,12 @@ public class SvgDaoImpl implements SvgDao {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
 		String csvName = outputPath + "/" + sdf.format(dt).toString() + "_CSV.csv";
-		
+
 		// StringBuilder 값을 csv 파일로 저장한다
 		csvWrite(sb.toString(), new File(csvName));
-		
+
 		// 저장한 csv파일의 경로를 리턴 해준다
 		return sdf.format(dt).toString() + "_CSV.csv";
 
@@ -245,16 +242,16 @@ public class SvgDaoImpl implements SvgDao {
 		try {
 
 			MultipartFile csvFile = svgModel.getTranslateFile();
-			
+
 			// 업로드 된 csv 파일을 저장후 파일 이름을 사용
 			String csvName = csvUpload(csvFile);
 
-			// 번역 된 SVG zip 파일을 생성할 경로			
+			// 번역 된 SVG zip 파일을 생성할 경로
 			String outZipNm = context.getRealPath("/output/") + sdf.format(dt).toString() + "_translated.zip";
 
-			// csv파일의 path(라인당 첫번쩨 값)을 키로 Map 생성 
+			// csv파일의 path(라인당 첫번쩨 값)을 키로 Map 생성
 			HashMap<String, List<CsvModel>> csvMap = csvToMap(csvName);
-			
+
 			Iterator<String> iter = csvMap.keySet().iterator();
 
 			ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outZipNm)));
@@ -263,7 +260,7 @@ public class SvgDaoImpl implements SvgDao {
 				String key = iter.next();
 
 				String path = key;
-				
+
 				// svg 파일 이름의 확장자를 변경하여 스켈레톤 파일 불러오기
 				String sktPath = path.replace(".svg", ".skt");
 				String svgFile = context.getRealPath("/root/") + sktPath;
@@ -303,15 +300,15 @@ public class SvgDaoImpl implements SvgDao {
 	}
 
 	private String csvUpload(MultipartFile multipartFile) {
-		// 업로드 된 csv 파일을 저장하는 함수 
-		
+		// 업로드 된 csv 파일을 저장하는 함수
+
 		// Tomcat/webapps/svgconverter/upload 경로
 		String filePath = context.getRealPath("/upload/");
 
 		BufferedOutputStream bos = null;
 		BufferedInputStream bis = null;
 		String fileName = multipartFile.getOriginalFilename();
-		
+
 		String fullFilePath = filePath + fileName; //
 
 		try {
@@ -355,9 +352,11 @@ public class SvgDaoImpl implements SvgDao {
 	@Override
 	public String svgExport(SvgExportModel model) {
 		// SVG -> EPS, GIF 변환 함수
-		
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date dt = new Date();
+
+		// output 경로 하위 파일 파일 제거
 		File[] oldFiles = new File(context.getRealPath("/output/")).listFiles();
 
 		for (File oldFile : oldFiles) {
@@ -372,6 +371,7 @@ public class SvgDaoImpl implements SvgDao {
 			}
 		}
 
+		// SVG 파일 이름 목록
 		List<String> files = model.getSvgFiles();
 
 		String outZipNm = context.getRealPath("/output/") + sdf.format(dt).toString() + "_export.zip";
@@ -381,6 +381,8 @@ public class SvgDaoImpl implements SvgDao {
 			zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outZipNm)));
 			for (String fileName : files) {
 
+				// SVG 변환 중 분리(seperate) 기능 시 이용하는 flag
+				// 단순 변환 할때의 이름, 분리 할때 파일들의 이름을 구분하기 위해 사용
 				boolean originFlag = true;
 				boolean originSepFlag = true;
 
@@ -417,9 +419,9 @@ public class SvgDaoImpl implements SvgDao {
 							String entryName = fileName.substring(0, fileName.lastIndexOf("/") + 1)
 									+ file.getName().replace(".svg", ".eps");
 							zip(exportEps(file.getAbsolutePath()), zos, entryName);
-							
+
 							if (originSepFlag) {
-								
+
 								zip(file, zos, fileName.substring(0, fileName.lastIndexOf("/") + 1) + file.getName());
 							}
 						}
@@ -439,7 +441,7 @@ public class SvgDaoImpl implements SvgDao {
 									+ file.getName().replace(".svg", ".gif");
 							zip(exportGif(file.getAbsolutePath()), zos, entryName);
 							if (originSepFlag) {
-								
+
 								zip(file, zos, fileName.substring(0, fileName.lastIndexOf("/") + 1) + file.getName());
 							}
 						}
@@ -460,7 +462,7 @@ public class SvgDaoImpl implements SvgDao {
 	}
 
 	private void zip(File file, ZipOutputStream zos, String originName) {
-		// zip entry 추가 함수
+		// zip 압축파일 entry 추가 함수
 		try {
 			int size = 1024;
 			byte[] buf = new byte[size];
@@ -490,10 +492,13 @@ public class SvgDaoImpl implements SvgDao {
 		}
 	}
 
-
 	public File exportEps(String svgFileName) {
+		// SVG -> EPS 변환 홤수
+		// apache batik 사용 EPS 변환
+
 		String outputPath = "";
 		try {
+
 			String svg_URI_input = Paths.get(svgFileName).toUri().toURL().toString();
 			TranscoderInput input_svg_image = new TranscoderInput(svg_URI_input);
 
@@ -522,6 +527,9 @@ public class SvgDaoImpl implements SvgDao {
 	}
 
 	public File exportGif(String svgFileName) {
+		// SVG -> GIF 변환 홤수
+		// apache batik 사용 gif 변환
+
 		String outputPath = "";
 		try {
 			String svg_URI_input = Paths.get(svgFileName).toUri().toURL().toString();
@@ -552,6 +560,8 @@ public class SvgDaoImpl implements SvgDao {
 	}
 
 	public File svgSeparator(String svgFileName) {
+		// SVG 분리 함수
+
 		int suffixNum = 1;
 
 		File outputPath = new File(context.getRealPath("/output/"));
@@ -560,18 +570,24 @@ public class SvgDaoImpl implements SvgDao {
 
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 
-
 		try {
 			builderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			DocumentBuilder builder = builderFactory.newDocumentBuilder();
 			Document document = builder.parse(new FileInputStream(svgFile));
 
+			// 원본 svg root 엘리먼트
 			Element element = document.getDocumentElement();
+
+			// root 엘리먼트 하위 g, rect 등등 구분 지어지는 분리 단위 요소
 			NodeList list = element.getChildNodes();
 
+			// 하위 엘리먼트를 복사해서 넣을 임시 xml document
 			Document tempDoc = builder.newDocument();
 
+			// 임시 root 엘리먼트
 			Element tempElem = (Element) element.cloneNode(true);
+
+			// 임시 document 에 임시 root 엘리먼트를 넣어 기본 docuemnt 객체를 만든다
 			tempDoc.adoptNode(tempElem);
 			tempDoc.appendChild(tempElem);
 
@@ -579,6 +595,8 @@ public class SvgDaoImpl implements SvgDao {
 				Node node = list.item(i);
 				if (node.getNodeType() == 1) {
 
+					// 임시 엘리먼트 하위 엘리먼트를 지운다
+					// 임시 docuement 갹채 하나로 돌려 쓴다
 					removeChilds(tempElem);
 
 					Node clonedNode = node.cloneNode(true);
@@ -591,10 +609,6 @@ public class SvgDaoImpl implements SvgDao {
 					suffixNum++;
 
 					XmlUtil.xmlWrite(tempDoc, new File(outputFileName));
-					// System.out.println(elem.getAttribute("id") +
-					// " done");
-
-
 				}
 
 			}
@@ -613,41 +627,48 @@ public class SvgDaoImpl implements SvgDao {
 		return outputPath;
 	}
 
-	public boolean csvWrite(String csvContent, File outputFile) {
-		boolean flag = false;
+	public void csvWrite(String csvContent, File outputFile) {
+		// CSV 파일 저장 함수
 
 		try {
 			PrintWriter pw = new PrintWriter(outputFile);
 			pw.write(csvContent);
 			pw.close();
-			flag = true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 
-		return flag;
 	}
 
 	public HashMap<String, List<CsvModel>> csvToMap(String csvFileName) {
+		// csv 파일을 map 객체로 불러오는 함수
+		// csv파일의 path(라인당 첫번쩨 값)을 키로 Map 생성
+		
+		// key: svg 파일 경로, value: CsvModel 객체 (id, source, target) List
 		HashMap<String, List<CsvModel>> returnMap = new HashMap<String, List<CsvModel>>();
 		try {
 
 			FileInputStream fis = new FileInputStream(new File(csvFileName));
 
-			// BufferedReader br = new BufferedReader(new FileReader(new
-			// File(csvFileName)));
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis, "euc-kr"));
 
 			String line = "";
 			while ((line = br.readLine()) != null) {
+				// csvContent[0]: svg 파일 이름
+				// csvContent[1]: ID
+				// csvContent[2]: source 원문 문장
+				// csvContent[3]: target 번역 문장
 				String[] csvContent = line.split(",");
+				
 				String svgName = csvContent[0];
+				
+				// 첫 라인 헤더 건너 뛰기
 				if (svgName.equals("path")) {
 					continue;
 				}
 
+				// 같은 svg 경로 key 값이 있으면 같은 리스트 사용
 				ArrayList<CsvModel> list = null;
-
 				if (returnMap.containsKey(svgName)) {
 					list = (ArrayList<CsvModel>) returnMap.get(svgName);
 				} else {
@@ -676,7 +697,7 @@ public class SvgDaoImpl implements SvgDao {
 
 	public File sktSvgWrite(HashMap<String, String> csvMap, String svgFileName) {
 		// 스켈레톤 파일로 번역 된 SVG 파일을 생성하는 함수
-		
+
 		Document document;
 
 		try {
@@ -720,6 +741,7 @@ public class SvgDaoImpl implements SvgDao {
 	}
 
 	public void removeChilds(Node node) {
+		// xml element 자식 전부 지우기 함수		
 		NodeList list = node.getChildNodes();
 		for (int i = 0; i < list.getLength(); i++) {
 			Node childNode = list.item(i);
@@ -730,6 +752,7 @@ public class SvgDaoImpl implements SvgDao {
 
 	@Override
 	public String svgUpload(SvgModel svgModel) {
+		// 개별 SVG 파일 업로드 함수
 
 		BufferedOutputStream bos = null;
 		BufferedInputStream bis = null;
@@ -774,6 +797,8 @@ public class SvgDaoImpl implements SvgDao {
 
 	@Override
 	public String svgSeperate(SvgExportModel model) {
+		// SVG 분리 기능 함수
+		// 현재 사용 없음
 
 		Date dt = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

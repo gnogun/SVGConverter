@@ -314,27 +314,7 @@ function initTree() {
 			// $("#echoSelectionRoots3").text(selRootNodes.join(", "));
 		}
 	});
-
-	/*
-	 * $("#linkTree").fancytree( { extensions : [ "contextMenu" ], source : {
-	 * url : "tree/dir" }, contextMenu : { menu : function(node) { return {
-	 * "sdPath" : { "name" : "SD 경로 선택" }, "ccPath" : { "name" : "CC 경로 선택" },
-	 * "clPath" : { "name" : "CL 경로 선택" }, "hlPath" : { "name" : "HL 경로 선택" } }; },
-	 * 
-	 * 
-	 * function(node){ if (node.folder){ return { 'create':{ 'name': 'folder
-	 * option', 'icon': 'paste'} }; } else { return { 'create':{ 'name': 'leaf
-	 * option', 'icon': 'paste'} }; }
-	 * 
-	 * actions : function(node, action, options) {
-	 * 
-	 * if (action == "sdPath") { $("#sdPath").text(node.getKeyPath()); } else if
-	 * (action == "ccPath") { $("#ccPath").text(node.getKeyPath()); } else if
-	 * (action == "clPath") { $("#clPath").text(node.getKeyPath()); } else if
-	 * (action == "hlPath") { $("#hlPath").text(node.getKeyPath()); } } },
-	 * lazyLoad : function(event, data) { data.result = $.ajax({ url :
-	 * "ajax-sub2.json", dataType : "json" }); } });
-	 */
+	
 }
 
 function zipUpload() {

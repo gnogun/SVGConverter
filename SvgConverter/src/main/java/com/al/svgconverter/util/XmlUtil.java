@@ -13,6 +13,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 public class XmlUtil {
+	
+	// XML 파일 저장 함수
+	// 
 	public static boolean xmlWrite(Document newDoc, File makeXmlFile) {
 		boolean bSuccessFalse = false;
 
